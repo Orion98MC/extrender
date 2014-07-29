@@ -1,0 +1,14 @@
+{
+  "name": "extrender",
+  "version": "0.1.0",
+  "description": "Express extended render",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thierry Passeron",
+  "license": "MIT",
+  "dependencies": {
+    "q": "^1.0.1"
+  }
+}
