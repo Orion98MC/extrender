@@ -92,7 +92,7 @@ We use Q to provide promises (https://github.com/kriskowal/q).
 
 ## License terms
 
-Copyright (c), 2012 Thierry Passeron
+Copyright (c), 2014 Thierry Passeron
 
 The MIT License
 
