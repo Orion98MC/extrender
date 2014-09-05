@@ -1,6 +1,6 @@
 # Express Extended Render
 
-Extends express render to controller actions.
+Express render as promises.
 
 ## Exemple:
 
@@ -38,20 +38,20 @@ function dashboard(req, res) {
 * You duplicate the code which is error prone, especially if the show functions are bigger
 * It's not very Object oriented
 
-## Use the force luke
+## Extrender:
 
-With this little express extended render you would do this:
+With extrender you would do this:
 
 ```js
 function dashboard(req, res) {
  
   var foo_txt;
   
-  res.render(showFoo, { foo_id: 1234 }).then(function (str) {
+  res.chain().render(showFoo, { foo_id: 1234 }).then(function (str) {
     foo_txt = str;
     return res.render(showBar, { bar_id: 2345 });
   }).then(function (bar_txt) {
-    res.render('dashboard', { foo_raw: foo_txt, bar_raw: bar_txt });
+    return res.render('dashboard', { foo_raw: foo_txt, bar_raw: bar_txt });
   });
   
 }
@@ -59,31 +59,50 @@ function dashboard(req, res) {
 
 ## Usage
 
-Patch the response render function:
+Patch the res.render() function:
 
 ```js
 var app = express()
 require('extrender')(app);
 ```
 
-It wraps the genuine response render and calls it if the first argument is a string like so:
+Now, with extrender, you keep the same syntaxe you are used to with express. But you need to adjust two things:
+
+* First, you never use a callback, you use promises and 'then' things.
+* Second, there is no more a default flush (res.send()) at the end of your res.render() calls
+So, you need to either "then" a function to flush the results of your templates OR to use the render chain.
+
+Example:
 
 ```js
-res.render(template_name, locals, cb)
+res.render('foo.html', { foo: "foo" }).then(function (result) { res.send(result); });
+
+OR, using the render chain:
+
+res.chain().render('foo.html', { foo: "foo" });
 ```
 
-It calls the extended code when the first argument is a function which is expected to be a controller code that renders something:
+## Render chain
+
+One thing great with extrender is that you can render controller codes. But this means that the controller code that renders something cannot call res.send(). In fact it is up to the code that renders a controller code to flush. But what if this code is also a controller that could be called by an other controller code ... 
+
+The solution to this is the render chain. You create a render chain every time you call res.chain(), if an other chain already existed then the new one is attached to it as a competion promise etc... 
+
+The first code to call res.chain() is considered to be the one that will flush to the network. The other chains will only report to this chain their own completion.
+
+So if any of your code renders something it should call the res.chain() first and "then" things to this chain like so:
 
 ```js
-res.render(controller_function, options, cb)
+
+res.chain().then(function () {
+  return res.render(Foo.show, { foo: 1 });
+}).then(...)
+
+OR as a shortcut you may use .render() on the chain:
+
+res.chain().render(Foo.show, { foo: 1 }).then(...);
+
 ```
-
-* options: (Object) contains the locals to be used for this render tree. options may contain one special key '_body' which may contain a request body
-
-example: { local_var: 1, _body: { id: 1234 }}
-
-* cb: optional callback like in the genuine render which takes (error, string) as arguments.
-
 
 ## dependencies
 
