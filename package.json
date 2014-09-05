@@ -1,6 +1,6 @@
 {
   "name": "extrender",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Express extended render",
   "main": "index.js",
   "scripts": {
